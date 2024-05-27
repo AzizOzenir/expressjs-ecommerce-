@@ -13,15 +13,66 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  ADMIN
+  USER
+}
 
 model User {
-  id Int @id @default(autoincrement())
-  name String
-  email String @unique
-  password String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
-
+  id        Int       @id @default(autoincrement())
+  name      String
+  email     String    @unique
+  password  String
+  role      Role      @default(USER)
+  articles  Article[]
+  comments  Comment[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now())
 
   @@map("users")
+}
+
+model Article {
+  id          Int      @id @default(autoincrement())
+  title       String
+  content     String
+  author      User     @relation(fields: [authorId], references: [id])
+  authorId    Int
+  category    Category @relation(fields: [categoryId], references: [id])
+  categoryId  Int
+  tags        Tag[]    @relation("ArticleTags")
+  comments    Comment[]
+  publishedAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
+
+  @@map("articles")
+}
+
+model Category {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  articles Article[]
+
+  @@map("categories")
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  content   String
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  Int
+  article   Article  @relation(fields: [articleId], references: [id])
+  articleId Int
+  createdAt DateTime @default(now())
+
+  @@map("comments")
+}
+
+model Tag {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  articles Article[] @relation("ArticleTags")
+
+  @@map("tags")
 }
