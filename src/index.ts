@@ -18,7 +18,7 @@ app.use(errorMiddleware);
 /* app.use(authMiddleWare);   */
 app.use("/api", rootRouter);
 
-app.listen(PORT, () => {
+app.listen(PORT, ()  => {
   console.log(`listening app on ${PORT}`);
 });
 

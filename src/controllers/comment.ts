@@ -3,18 +3,15 @@ import { prismaClient } from "..";
 import { BadRequestException } from "../exceptions/bad_requests";
 import { ErrorCode } from "../exceptions/root";
 
-export const getArcticles = async (req: Request, res: Response) => {
+export const getComments = async (req: Request, res: Response) => {
   try {
-    const articles = await prismaClient.article.findMany({
+    const comments = await prismaClient.comment.findMany({
       include: {
         author: true,
-        category: true,
-        tags: true,
-        comments: true,
+        article: true,
       },
     });
-
-    res.json({ articles });
+    res.json({ comments });
   } catch (error) {
     throw new BadRequestException(
       "Something went Wrong",
@@ -23,19 +20,17 @@ export const getArcticles = async (req: Request, res: Response) => {
   }
 };
 
-export const getArticle = async (req: Request, res: Response) => {
+export const getComment = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
-    const article = await prismaClient.article.findUnique({
+    const comment = await prismaClient.comment.findUnique({
       where: { id: parseInt(id) },
       include: {
         author: true,
-        category: true,
-        tags: true,
-        comments: true,
+        article: true,
       },
     });
-    res.json({ article });
+    res.json({ comment });
   } catch (error) {
     throw new BadRequestException(
       "Something went Wrong",
@@ -44,21 +39,18 @@ export const getArticle = async (req: Request, res: Response) => {
   }
 };
 
-export const createArticle = async (req: Request, res: Response) => {
-  const { title, content, authorId, categoryId, tagIds } = req.body;
+export const createComment = async (req: Request, res: Response) => {
+  const { content, authorId, articleId } = req.body;
   try {
-    const article = await prismaClient.article.create({
+    const comment = await prismaClient.comment.create({
       data: {
-        title,
         content,
         author: { connect: { id: authorId } },
-        category: { connect: { id: categoryId } },
-        tags: { connect: tagIds.map((id: number) => ({ id })) },
+        article: { connect: { id: articleId } },
       },
     });
-    res.json({ article });
+    res.json({ comment });
   } catch (error) {
-    console.log(error,"xxxxxxxxxxxx")
     throw new BadRequestException(
       "Something went Wrong",
       ErrorCode.UNPROCESSABLE_ENTITY
@@ -66,21 +58,19 @@ export const createArticle = async (req: Request, res: Response) => {
   }
 };
 
-export const updateArticle = async (req: Request, res: Response) => {
+export const updateComment = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { title, content, authorId, categoryId, tagIds } = req.body;
+  const { content, authorId, articleId } = req.body;
   try {
-    const article = await prismaClient.article.update({
+    const comment = await prismaClient.comment.update({
       where: { id: parseInt(id) },
       data: {
-        title,
         content,
         author: { connect: { id: authorId } },
-        category: { connect: { id: categoryId } },
-        tags: { set: [], connect: tagIds.map((id: number) => ({ id })) },
+        article: { connect: { id: articleId } },
       },
     });
-    res.json({ article });
+    res.json({ comment });
   } catch (error) {
     throw new BadRequestException(
       "Something went Wrong",
@@ -89,11 +79,11 @@ export const updateArticle = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteArticle = async (req: Request, res: Response) => {
+export const deleteComment = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
-    await prismaClient.article.delete({ where: { id: parseInt(id) } });
-    res.json({ message: "Article deleted successfully" });
+    await prismaClient.comment.delete({ where: { id: parseInt(id) } });
+    res.json({ message: "Comment deleted successfully" });
   } catch (error) {
     throw new BadRequestException(
       "Something went Wrong",

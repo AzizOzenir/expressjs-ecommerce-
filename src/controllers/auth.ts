@@ -64,8 +64,6 @@ export const login = async (
     },
     JWT_SECRET
   );
-
-
   res.json({ user, token });
 };
 
